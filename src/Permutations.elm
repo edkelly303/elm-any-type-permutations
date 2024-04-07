@@ -44,10 +44,17 @@ string =
     Gen.fromList [ "", " ", "\n", "\u{000D}", "\t", "\"", "a", "ab", "abc" ]
 
 
+type Outcome a
+    = Exhausted
+    | Expand
+    | Continue a
 
--- list : Int -> Int -> Gen.GenTools state value -> Gen.GenTools (List state) (List value)
 
-
+list :
+    Int
+    -> Int
+    -> Gen.GenTools state value
+    -> Gen.GenTools (Maybe (List state)) (List value)
 list min max item =
     let
         rawInit =
@@ -57,9 +64,11 @@ list min max item =
             in
             state
 
+        rawValue : state -> Gen.Value value
         rawValue state =
             item.value (Gen.Generator state)
 
+        rawNext : state -> state
         rawNext state =
             let
                 (Gen.Generator nextState) =
@@ -67,36 +76,65 @@ list min max item =
             in
             nextState
 
+        isNearlyEmpty state =
+            (state |> rawNext |> rawValue) == Gen.Empty
+
         next maybeList =
             case maybeList of
                 Nothing ->
                     Nothing
 
                 Just list_ ->
-                    case List.reverse list_ of
+                    case list_ of
                         [] ->
+                            {- an empty list is only possible if `item` is a
+                               generator initialised with a `min` of 0 - it will
+                               be the initial state of such a generator.
+                            -}
                             if max > 0 then
                                 Just [ rawInit ]
 
                             else
                                 Nothing
 
-                        [] :: _ ->
-                            Just (List.repeat (List.length list_ + 1) rawInit)
+                        gen :: gens ->
+                            case recurse (List.length list_) gen gens of
+                                Exhausted ->
+                                    Nothing
 
-                        _ :: _ ->
-                            Just (recurse [] list_)
+                                Expand ->
+                                    Just (List.repeat (List.length list_ + 1) rawInit)
 
-        recurse output itemStates =
-            case itemStates of
+                                Continue a ->
+                                    Just a
+
+        recurse currentLength gen gens =
+            case gens of
                 [] ->
-                    output
+                    if gen |> isNearlyEmpty then
+                        if max > currentLength then
+                            Expand
 
-                [] :: restItemStates ->
-                    recurse (output ++ [ rawInit ]) restItemStates
+                        else
+                            Exhausted
 
-                itemState :: restItemStates ->
-                    output ++ (rawNext itemState :: restItemStates)
+                    else
+                        Continue [ rawNext gen ]
+
+                nextGen :: restGens ->
+                    if gen |> isNearlyEmpty then
+                        case recurse currentLength nextGen restGens of
+                            Exhausted ->
+                                Exhausted
+
+                            Continue newGens ->
+                                Continue (rawInit :: newGens)
+
+                            Expand ->
+                                Expand
+
+                    else
+                        Continue (rawNext gen :: gens)
     in
     Gen.new
         { count = (item.count ^ (max + 1)) - (item.count ^ min)
