@@ -1,6 +1,7 @@
 module Permutations exposing
     ( bool
     , customType
+    , dict
     , field
     , float
     , int
@@ -16,6 +17,7 @@ module Permutations exposing
     , variant5
     )
 
+import Dict
 import Gen
 
 
