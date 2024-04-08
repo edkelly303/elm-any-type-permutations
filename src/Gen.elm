@@ -1,4 +1,4 @@
-module Gen exposing (Definition, GenTools, Generator(..), Value(..), always, andMap, append, empty, fromList, map, merge, new, once)
+module Gen exposing (Definition, GenTools, Generator(..), Value(..), always, andMap, append, empty, fromList, list, map, merge, new, once)
 
 
 type Generator state value
@@ -110,10 +110,10 @@ once value =
 
 
 fromList : List a -> GenTools (List a) a
-fromList list =
+fromList list_ =
     new
-        { count = List.length list
-        , init = list
+        { count = List.length list_
+        , init = list_
         , next =
             \state ->
                 case state of
@@ -130,6 +130,136 @@ fromList list =
 
                     [] ->
                         Empty
+        }
+
+
+type Outcome a
+    = Exhausted
+    | Expand
+    | Continue a
+
+
+list :
+    Int
+    -> Int
+    -> GenTools state value
+    -> GenTools (Maybe (List state)) (List value)
+list min max item =
+    let
+        rawInit =
+            let
+                (Generator state) =
+                    item.init
+            in
+            state
+
+        rawValue : state -> Value value
+        rawValue state =
+            item.value (Generator state)
+
+        rawNext : state -> state
+        rawNext state =
+            let
+                (Generator nextState) =
+                    item.next (Generator state)
+            in
+            nextState
+
+        isNearlyEmpty state =
+            (state |> rawNext |> rawValue) == Empty
+
+        next maybeList =
+            case maybeList of
+                Nothing ->
+                    Nothing
+
+                Just list_ ->
+                    case list_ of
+                        [] ->
+                            {- an empty list is only possible if `item` is a
+                               generator initialised with a `min` of 0 - it will
+                               be the initial state of such a generator.
+                            -}
+                            if max > 0 then
+                                Just [ rawInit ]
+
+                            else
+                                Nothing
+
+                        gen :: gens ->
+                            case recurse (List.length list_) gen gens of
+                                Exhausted ->
+                                    Nothing
+
+                                Expand ->
+                                    Just (List.repeat (List.length list_ + 1) rawInit)
+
+                                Continue a ->
+                                    Just a
+
+        recurse currentLength gen gens =
+            case gens of
+                [] ->
+                    if gen |> isNearlyEmpty then
+                        if max > currentLength then
+                            Expand
+
+                        else
+                            Exhausted
+
+                    else
+                        Continue [ rawNext gen ]
+
+                nextGen :: restGens ->
+                    if gen |> isNearlyEmpty then
+                        case recurse currentLength nextGen restGens of
+                            Exhausted ->
+                                Exhausted
+
+                            Continue newGens ->
+                                Continue (rawInit :: newGens)
+
+                            Expand ->
+                                Expand
+
+                    else
+                        Continue (rawNext gen :: gens)
+
+        counter acc n =
+            if n < min then
+                acc
+
+            else
+                counter ((item.count ^ n) + acc) (n - 1)
+    in
+    new
+        { count = counter 0 max
+        , init =
+            let
+                (Generator init) =
+                    item.init
+            in
+            Just (List.repeat min init)
+        , next = next
+        , value =
+            \maybeList ->
+                case maybeList of
+                    Nothing ->
+                        Empty
+
+                    Just state ->
+                        List.foldl
+                            (\itemState output ->
+                                case item.value (Generator itemState) of
+                                    Value v ->
+                                        v :: output
+
+                                    Empty ->
+                                        output
+                            )
+                            []
+                            state
+                            |> Value
         }
 
 

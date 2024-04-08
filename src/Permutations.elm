@@ -44,127 +44,32 @@ string =
     Gen.fromList [ "", " ", "\n", "\u{000D}", "\t", "\"", "a", "ab", "abc" ]
 
 
-type Outcome a
-    = Exhausted
-    | Expand
-    | Continue a
-
-
 list :
-    Int
-    -> Int
+    { minLength : Int, maxLength : Int }
     -> Gen.GenTools state value
     -> Gen.GenTools (Maybe (List state)) (List value)
-list min max item =
-    let
-        rawInit =
-            let
-                (Gen.Generator state) =
-                    item.init
-            in
-            state
+list { minLength, maxLength } =
+    Gen.list minLength maxLength
 
-        rawValue : state -> Gen.Value value
-        rawValue state =
-            item.value (Gen.Generator state)
 
-        rawNext : state -> state
-        rawNext state =
-            let
-                (Gen.Generator nextState) =
-                    item.next (Gen.Generator state)
-            in
-            nextState
+tuple :
+    Gen.GenTools state1 value1
+    -> Gen.GenTools state2 value2
+    -> Gen.GenTools ( ( List (value1 -> value2 -> ( value1, value2 )), state1 ), state2 ) ( value1, value2 )
+tuple fst snd =
+    record Tuple.pair
+        |> field fst
+        |> field snd
 
-        isNearlyEmpty state =
-            (state |> rawNext |> rawValue) == Gen.Empty
 
-        next maybeList =
-            case maybeList of
-                Nothing ->
-                    Nothing
-
-                Just list_ ->
-                    case list_ of
-                        [] ->
-                            {- an empty list is only possible if `item` is a
-                               generator initialised with a `min` of 0 - it will
-                               be the initial state of such a generator.
-                            -}
-                            if max > 0 then
-                                Just [ rawInit ]
-
-                            else
-                                Nothing
-
-                        gen :: gens ->
-                            case recurse (List.length list_) gen gens of
-                                Exhausted ->
-                                    Nothing
-
-                                Expand ->
-                                    Just (List.repeat (List.length list_ + 1) rawInit)
-
-                                Continue a ->
-                                    Just a
-
-        recurse currentLength gen gens =
-            case gens of
-                [] ->
-                    if gen |> isNearlyEmpty then
-                        if max > currentLength then
-                            Expand
-
-                        else
-                            Exhausted
-
-                    else
-                        Continue [ rawNext gen ]
-
-                nextGen :: restGens ->
-                    if gen |> isNearlyEmpty then
-                        case recurse currentLength nextGen restGens of
-                            Exhausted ->
-                                Exhausted
-
-                            Continue newGens ->
-                                Continue (rawInit :: newGens)
-
-                            Expand ->
-                                Expand
-
-                    else
-                        Continue (rawNext gen :: gens)
-    in
-    Gen.new
-        { count = (item.count ^ (max + 1)) - (item.count ^ min)
-        , init =
-            let
-                (Gen.Generator init) =
-                    item.init
-            in
-            Just (List.repeat min init)
-        , next = next
-        , value =
-            \maybeList ->
-                case maybeList of
-                    Nothing ->
-                        Gen.Empty
-
-                    Just state ->
-                        List.foldl
-                            (\itemState output ->
-                                case item.value (Gen.Generator itemState) of
-                                    Gen.Value v ->
-                                        v :: output
-
-                                    Gen.Empty ->
-                                        output
-                            )
-                            []
-                            state
-                            |> Gen.Value
-        }
+dict :
+    { minLength : Int, maxLength : Int }
+    -> Gen.GenTools state1 comparable
+    -> Gen.GenTools state2 value
+    -> Gen.GenTools (Maybe (List ( ( List (comparable -> value -> ( comparable, value )), state1 ), state2 ))) (Dict.Dict comparable value)
+dict size k v =
+    list size (tuple k v)
+        |> Gen.map Dict.fromList
 
 
 record : a -> Gen.GenTools (List a) a
