@@ -87,40 +87,31 @@ customType =
     Gen.empty
 
 
-
--- variant0 :
---     variant
---     -> Gen.GenTools builderState variant
---     -> Gen.GenTools ( builderState, () ) variant
-
-
+variant0 :
+    variant
+    -> Gen.GenTools builderState variant
+    -> Gen.GenTools ( builderState, List variant ) variant
 variant0 variant builder =
     Gen.append builder (Gen.once variant)
 
 
-
--- variant1 :
---     (arg -> variant)
---     -> Gen.GenTools argState arg
---     -> Gen.GenTools builderState variant
---     -> Gen.GenTools ( builderState, argState ) variant
-
-
+variant1 :
+    (arg -> variant)
+    -> Gen.GenTools argState arg
+    -> Gen.GenTools builderState variant
+    -> Gen.GenTools ( builderState, argState ) variant
 variant1 tag arg builder =
     arg
         |> Gen.map tag
         |> Gen.append builder
 
 
-
--- variant2 :
---     (arg1 -> arg2 -> variant)
---     -> Gen.GenTools arg1State arg1
---     -> Gen.GenTools arg2State arg2
---     -> Gen.GenTools builderState variant
---     -> Gen.GenTools ( builderState, ( ( (), arg1State ), arg2State ) ) variant
-
-
+variant2 :
+    (arg1 -> arg2 -> variant)
+    -> Gen.GenTools arg1State arg1
+    -> Gen.GenTools arg2State arg2
+    -> Gen.GenTools builderState variant
+    -> Gen.GenTools ( builderState, ( ( List (arg1 -> arg2 -> variant), arg1State ), arg2State ) ) variant
 variant2 tag arg1 arg2 builder =
     let
         variantGen =
@@ -131,16 +122,13 @@ variant2 tag arg1 arg2 builder =
     Gen.append builder variantGen
 
 
-
--- variant3 :
---     (arg1 -> arg2 -> arg3 -> variant)
---     -> Gen.GenTools arg1State arg1
---     -> Gen.GenTools arg2State arg2
---     -> Gen.GenTools arg3State arg3
---     -> Gen.GenTools builderState variant
---     -> Gen.GenTools ( builderState, ( ( ( (), arg1State ), arg2State ), arg3State ) ) variant
-
-
+variant3 :
+    (arg1 -> arg2 -> arg3 -> variant)
+    -> Gen.GenTools arg1State arg1
+    -> Gen.GenTools arg2State arg2
+    -> Gen.GenTools arg3State arg3
+    -> Gen.GenTools builderState variant
+    -> Gen.GenTools ( builderState, ( ( ( List (arg1 -> arg2 -> arg3 -> variant), arg1State ), arg2State ), arg3State ) ) variant
 variant3 tag arg1 arg2 arg3 builder =
     let
         variantGen =
@@ -152,17 +140,14 @@ variant3 tag arg1 arg2 arg3 builder =
     Gen.append builder variantGen
 
 
-
--- variant4 :
---     (arg1 -> arg2 -> arg3 -> arg4 -> variant)
---     -> Gen.GenTools arg1State arg1
---     -> Gen.GenTools arg2State arg2
---     -> Gen.GenTools arg3State arg3
---     -> Gen.GenTools arg4State arg4
---     -> Gen.GenTools builderState variant
---     -> Gen.GenTools ( builderState, ( ( ( ( (), arg1State ), arg2State ), arg3State ), arg4State ) ) variant
-
-
+variant4 :
+    (arg1 -> arg2 -> arg3 -> arg4 -> variant)
+    -> Gen.GenTools arg1State arg1
+    -> Gen.GenTools arg2State arg2
+    -> Gen.GenTools arg3State arg3
+    -> Gen.GenTools arg4State arg4
+    -> Gen.GenTools builderState variant
+    -> Gen.GenTools ( builderState, ( ( ( ( List (arg1 -> arg2 -> arg3 -> arg4 -> variant), arg1State ), arg2State ), arg3State ), arg4State ) ) variant
 variant4 tag arg1 arg2 arg3 arg4 builder =
     let
         variantGen =
@@ -175,18 +160,15 @@ variant4 tag arg1 arg2 arg3 arg4 builder =
     Gen.append builder variantGen
 
 
-
--- variant5 :
---     (arg1 -> arg2 -> arg3 -> arg4 -> arg5 -> variant)
---     -> Gen.GenTools arg1State arg1
---     -> Gen.GenTools arg2State arg2
---     -> Gen.GenTools arg3State arg3
---     -> Gen.GenTools arg4State arg4
---     -> Gen.GenTools arg5State arg5
---     -> Gen.GenTools builderState variant
---     -> Gen.GenTools ( builderState, ( ( ( ( ( (), arg1State ), arg2State ), arg3State ), arg4State ), arg5State ) ) variant
-
-
+variant5 :
+    (arg1 -> arg2 -> arg3 -> arg4 -> arg5 -> variant)
+    -> Gen.GenTools arg1State arg1
+    -> Gen.GenTools arg2State arg2
+    -> Gen.GenTools arg3State arg3
+    -> Gen.GenTools arg4State arg4
+    -> Gen.GenTools arg5State arg5
+    -> Gen.GenTools builderState variant
+    -> Gen.GenTools ( builderState, ( ( ( ( ( List (arg1 -> arg2 -> arg3 -> arg4 -> arg5 -> variant), arg1State ), arg2State ), arg3State ), arg4State ), arg5State ) ) variant
 variant5 tag arg1 arg2 arg3 arg4 arg5 builder =
     let
         variantGen =
