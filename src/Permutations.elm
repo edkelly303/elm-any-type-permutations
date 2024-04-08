@@ -8,6 +8,7 @@ module Permutations exposing
     , list
     , record
     , string
+    , tuple
     , unit
     , variant0
     , variant1
