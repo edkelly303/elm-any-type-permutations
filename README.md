@@ -5,9 +5,13 @@ For finite types such as `Bool` and `()`, we can exhaustively generate every pos
 For infinite types such as `Int`, `Float` and `String`, we generate permutations of a small set of "interesting" values.
 For example, `int` generates the values 0, -1, 1, 2, 3, -10, 10, -100, 100.
 
-For complex types such as tuples, records, custom types and lists, the exhaustiveness depends on whether the contents
+For complex types such as tuples, records and custom types, the exhaustiveness depends on whether the contents
 are finite or infinite. For example, we can generate all possible permutations of `tuple bool bool`, but only a sample
 of interesting permutations for `tuple string int`.
+
+For collection types such as `List a` and `Dict k v`, we can specify the minimum and maximum length of the collection.
+For example, `list { minLength = 0, maxLength = 3 } unit` will generate every permutation of lists of `()` from the 
+empty list `[]` up to `[ () ,(), () ]`.
 
 ```elm
 import Permutations exposing (tuple, bool, list, record, field, unit, customType, variant0, variant1)
