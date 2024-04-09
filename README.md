@@ -11,7 +11,7 @@ of interesting permutations for `tuple string int`.
 
 For collection types such as `List a` and `Dict k v`, we can specify the minimum and maximum length of the collection.
 For example, `list { minLength = 0, maxLength = 3 } unit` will generate every permutation of `List ()` from the 
-empty list `[]` up to `[ () ,(), () ]`.
+empty list `[]` up to `[ (), (), () ]`.
 
 ```elm
 import Permutations exposing (tuple, bool, list, record, field, unit, customType, variant0, variant1)
