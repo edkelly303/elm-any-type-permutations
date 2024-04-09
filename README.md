@@ -10,7 +10,7 @@ are finite or infinite. For example, we can generate all possible permutations o
 of interesting permutations for `tuple string int`.
 
 For collection types such as `List a` and `Dict k v`, we can specify the minimum and maximum length of the collection.
-For example, `list { minLength = 0, maxLength = 3 } unit` will generate every permutation of lists of `()` from the 
+For example, `list { minLength = 0, maxLength = 3 } unit` will generate every permutation of `List ()` from the 
 empty list `[]` up to `[ () ,(), () ]`.
 
 ```elm
