@@ -1,29 +1,69 @@
-Generate all permutations for any Elm type
+Generate permutations of values for any Elm type.
+
+For finite types such as `Bool` and `()`, we can exhaustively generate every possible value.
+
+For infinite types such as `Int`, `Float` and `String`, we generate permutations of a small set of "interesting" values.
+For example, `int` generates the values 0, -1, 1, 2, 3, -10, 10, -100, 100.
+
+For complex types such as tuples, records, custom types and lists, the exhaustiveness depends on whether the contents
+are finite or infinite. For example, we can generate all possible permutations of `tuple bool bool`, but only a sample
+of interesting permutations for `tuple string int`.
 
 ```elm
-t =
+import Permutations exposing (tuple, bool, list, record, field, unit, customType, variant0, variant1)
+
+tup =
     tuple bool bool
 
-t.all ()
+tup.all ()
 
 --> [ ( False, False ), ( False, True ), ( True, False ), ( True, True ) ]
 
-u =
+tup.count 
+
+--> 4
+
+generator = 
+    tup.init
+
+tup.value generator
+
+--> Just ( False, False )
+
+generator 
+    |> tup.next
+    |> tup.value
+
+--> Just ( False, True )
+
+tup.take 2 generator
+
+--> [ ( False, False ), ( False, True ) ]
+
+generator
+    |> tup.drop 2
+    |> tup.take 2
+
+--> [ ( True, False ), ( True, True ) ]
+
+boolList =
     list { minLength = 0, maxLength = 2 } bool
 
-u.all ()
+boolList.all ()
 
 --> [ [], [ False ], [ True ], [ False, False ], [ False, True ], [ True, False ], [ True, True ] ]
 
-type alias R =
-  { bool : Bool, unit : () }
+type alias Rec =
+    { bool : Bool
+    , unit : () 
+    }
 
-r =
-    record R
+rec =
+    record Rec
         |> field bool
         |> field unit
 
-r.all ()
+rec.all ()
 
 --> [ { bool : False, unit : () }, { bool : True, unit : () } ]
 
@@ -31,12 +71,12 @@ type Foo
     = Bar
     | Baz Bool
 
-c =
+foo =
     customType
         |> variant0 Bar
         |> variant1 Baz bool
 
-c.all ()
+foo.all ()
 
 --> [ Bar, Baz False, Baz True ]
 ```
