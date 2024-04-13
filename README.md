@@ -21,7 +21,7 @@ tup =
 
 tup.all ()
 
---> [ ( False, False ), ( False, True ), ( True, False ), ( True, True ) ]
+--> [ ( False, False ), ( True, False ), ( False, True ), ( True, True ) ]
 
 tup.count 
 
@@ -30,6 +30,14 @@ tup.count
 tup.nth 1
 
 --> Just (False, True)
+
+tup.every 2
+
+--> [ ( False, False ), ( False, True ) ]
+
+tup.sample 0.75
+
+--> [ ( False, False ), ( True, False ), ( True, True ) ]
 
 boolList =
     list 2 bool
