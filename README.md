@@ -27,31 +27,8 @@ tup.count
 
 --> 4
 
-generator = 
-    tup.init
-
-tup.value generator
-
---> Just ( False, False )
-
-generator 
-    |> tup.next
-    |> tup.value
-
---> Just ( False, True )
-
-tup.take 2 generator
-
---> [ ( False, False ), ( False, True ) ]
-
-generator
-    |> tup.drop 2
-    |> tup.take 2
-
---> [ ( True, False ), ( True, True ) ]
-
 boolList =
-    list { minLength = 0, maxLength = 2 } bool
+    list 2 bool
 
 boolList.all ()
 
