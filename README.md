@@ -29,7 +29,7 @@ tup.count
 
 tup.nth 1
 
---> Just (False, True)
+--> Just (True, False)
 
 tup.every 2
 
