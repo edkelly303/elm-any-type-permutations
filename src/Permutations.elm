@@ -1,23 +1,22 @@
 module Permutations exposing
     ( Definition
     , Generator
-    , always
     , append
     , array
     , bool
     , char
+    , constant
     , customType
     , dict
     , empty
     , field
     , float
-    , fromList
     , int
     , list
     , map
     , maybe
     , new
-    , once
+    , oneOf
     , record
     , result
     , string
@@ -36,9 +35,34 @@ import Array
 import Dict
 
 
+unit : Generator ()
+unit =
+    constant ()
+
+
 bool : Generator Bool
 bool =
-    fromList [ False, True ]
+    oneOf [ False, True ]
+
+
+int : Generator Int
+int =
+    oneOf [ 0, -1, 1, 2, 3, -10, 10, -100, 100 ]
+
+
+float : Generator Float
+float =
+    oneOf [ 0.0, -1.0, 1.0, 0.2, 0.3 ]
+
+
+string : Generator String
+string =
+    oneOf [ "", " ", "\n", "\u{000D}", "\t", "\"", "a", "ab", "abc" ]
+
+
+char : Generator Char
+char =
+    oneOf [ ' ', 'a', 'A', '0', '\n', '\t', '\u{000D}' ]
 
 
 maybe : Generator a -> Generator (Maybe a)
@@ -53,6 +77,28 @@ result x a =
     customType
         |> variant1 Err x
         |> variant1 Ok a
+
+
+tuple :
+    Generator value1
+    -> Generator value2
+    -> Generator ( value1, value2 )
+tuple fst snd =
+    record Tuple.pair
+        |> field fst
+        |> field snd
+
+
+triple :
+    Generator value1
+    -> Generator value2
+    -> Generator value3
+    -> Generator ( value1, value2, value3 )
+triple fst snd thd =
+    record (\a b c -> ( a, b, c ))
+        |> field fst
+        |> field snd
+        |> field thd
 
 
 list : Int -> Generator a -> Generator (List a)
@@ -100,69 +146,15 @@ list maxLength item =
                             rotationsHelp [] 0
                     in
                     List.foldl
-                        (\rs mList ->
-                            case mList of
-                                Nothing ->
-                                    Nothing
-
-                                Just list_ ->
-                                    case item.nth rs of
-                                        Just v1 ->
-                                            Just (v1 :: list_)
-
-                                        Nothing ->
-                                            Nothing
+                        (\rs maybeList ->
+                            Maybe.map2
+                                (\list_ nth -> nth :: list_)
+                                maybeList
+                                (item.nth rs)
                         )
                         (Just [])
                         rotations
         }
-
-
-unit : Generator ()
-unit =
-    once ()
-
-
-int : Generator Int
-int =
-    fromList [ 0, -1, 1, 2, 3, -10, 10, -100, 100 ]
-
-
-float : Generator Float
-float =
-    fromList [ 0.0, -1.0, 1.0, 0.2, 0.3 ]
-
-
-string : Generator String
-string =
-    fromList [ "", " ", "\n", "\u{000D}", "\t", "\"", "a", "ab", "abc" ]
-
-
-char : Generator Char
-char =
-    fromList [ ' ', 'a', 'A', '0', '\n', '\t', '\u{000D}' ]
-
-
-tuple :
-    Generator value1
-    -> Generator value2
-    -> Generator ( value1, value2 )
-tuple fst snd =
-    record Tuple.pair
-        |> field fst
-        |> field snd
-
-
-triple :
-    Generator value1
-    -> Generator value2
-    -> Generator value3
-    -> Generator ( value1, value2, value3 )
-triple fst snd thd =
-    record (\a b c -> ( a, b, c ))
-        |> field fst
-        |> field snd
-        |> field thd
 
 
 array : Int -> Generator a -> Generator (Array.Array a)
@@ -185,7 +177,7 @@ record : constructor -> Generator constructor
 record constructor =
     new
         { count = 1
-        , nth = \n -> Just constructor
+        , nth = \_ -> Just constructor
         }
 
 
@@ -224,7 +216,7 @@ variant0 :
     -> Generator variant
     -> Generator variant
 variant0 variant builder =
-    append builder (once variant)
+    append builder (constant variant)
 
 
 variant1 :
@@ -381,21 +373,13 @@ empty =
         }
 
 
-always : a -> Generator a
-always value =
-    new
-        { count = 1
-        , nth = \_ -> Just value
-        }
+constant : a -> Generator a
+constant value =
+    oneOf [ value ]
 
 
-once : a -> Generator a
-once value =
-    fromList [ value ]
-
-
-fromList : List a -> Generator a
-fromList list_ =
+oneOf : List a -> Generator a
+oneOf list_ =
     let
         array_ =
             Array.fromList list_

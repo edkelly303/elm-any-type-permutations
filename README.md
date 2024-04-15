@@ -29,7 +29,7 @@ tup.all ()
 
 -- Count the number of permutations:
 
-tup.count 
+tup.count
 
 --> 4
 
@@ -52,6 +52,7 @@ tup.every 2
 tup.sample 0.75
 
 --> [ ( False, False ), ( True, False ), ( True, True ) ]
+```
 
 -- Create a generator for all lists of boolean values from the empty list up to lists of length 2:
 
@@ -62,34 +63,35 @@ boolList.all ()
 
 --> [ [], [ False ], [ True ], [ False, False ], [ False, True ], [ True, False ], [ True, True ] ]
 
--- Create a generator for a record type:
 
-type alias Rec =
-    { bool : Bool
-    , unit : () 
-    }
+-- -- Create a generator for a record type:
 
-rec =
-    record Rec
-        |> field bool
-        |> field unit
+-- type alias Rec =
+--     { bool : Bool
+--     , unit : () 
+--     }
 
-rec.all ()
+-- rec =
+--     record Rec
+--         |> field bool
+--         |> field unit
 
---> [ { bool : False, unit : () }, { bool : True, unit : () } ]
+-- --rec.all ()
 
--- Create a generator for a custom type:
+-- --> [ { bool : False, unit : () }, { bool : True, unit : () } ]
 
-type Foo
-    = Bar
-    | Baz Bool
+-- -- Create a generator for a custom type:
 
-foo =
-    customType
-        |> variant0 Bar
-        |> variant1 Baz bool
+-- type Foo
+--     = Bar
+--     | Baz Bool
 
-foo.all ()
+-- foo =
+--     customType
+--         |> variant0 Bar
+--         |> variant1 Baz bool
 
---> [ Bar, Baz False, Baz True ]
+-- -- foo.all ()
+
+-- --> [ Bar, Baz False, Baz True ]
 ```
