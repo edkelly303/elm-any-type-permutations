@@ -357,7 +357,8 @@ new definition =
                 clampedPct =
                     clamp 0.0 1.0 pct
             in
-            if clampedPct == 0 then
+            if clampedPct == 0.0 || definition.count == 0 then
+                -- avoid the risk of division by zero!
                 []
 
             else
