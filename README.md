@@ -9,7 +9,7 @@ For complex types such as tuples, records and custom types, the exhaustiveness d
 are finite or infinite. For example, we can generate all possible permutations of `tuple bool bool`, but only a sample
 of interesting permutations for `tuple string int`.
 
-For collection types such as `List a` and `Dict k v`, we can specify the minimum and maximum length of the collection.
+For collection types such as `List a` and `Dict k v`, we can specify the maximum length of the collection.
 For example, `list 3 unit` will generate every permutation of `List ()` from the 
 empty list `[]` up to `[ (), (), () ]`.
 
