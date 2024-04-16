@@ -63,35 +63,33 @@ boolList.all ()
 
 --> [ [], [ False ], [ True ], [ False, False ], [ False, True ], [ True, False ], [ True, True ] ]
 
+-- Create a generator for a record type:
 
--- -- Create a generator for a record type:
+type alias Rec =
+    { bool : Bool
+    , unit : () 
+    }
 
--- type alias Rec =
---     { bool : Bool
---     , unit : () 
---     }
+rec =
+    record Rec
+        |> field bool
+        |> field unit
 
--- rec =
---     record Rec
---         |> field bool
---         |> field unit
+--rec.all ()
 
--- --rec.all ()
+--> [ { bool : False, unit : () }, { bool : True, unit : () } ]
 
--- --> [ { bool : False, unit : () }, { bool : True, unit : () } ]
+-- Create a generator for a custom type:
 
--- -- Create a generator for a custom type:
+type Foo
+    = Bar
+    | Baz Bool
 
--- type Foo
---     = Bar
---     | Baz Bool
+foo =
+    customType
+        |> variant0 Bar
+        |> variant1 Baz bool
 
--- foo =
---     customType
---         |> variant0 Bar
---         |> variant1 Baz bool
+-- foo.all ()
 
--- -- foo.all ()
-
--- --> [ Bar, Baz False, Baz True ]
-```
+--> [ Bar, Baz False, Baz True ]
