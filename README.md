@@ -13,58 +13,61 @@ For collection types such as `List a` and `Dict k v`, we can specify the maximum
 For example, `list 3 unit` will generate every permutation of `List ()` from the 
 empty list `[]` up to `[ (), (), () ]`.
 
+## Examples
+
+### Create a permutation generator
+For example, for a tuple of booleans `( Bool, Bool )`:
 ```elm
-import Permutations exposing (tuple, bool, list, record, field, unit, customType, variant0, variant1)
-
--- Create a permutation generator for a pair of booleans:
-
 tup =
     tuple bool bool
-
--- Generate a list of all permutations:
-
+```
+### Generate all permutations
+This will give you a list of all permutations, starting from the 0th term in the sequence
+```elm
 tup.all ()
 
 --> [ ( False, False ), ( True, False ), ( False, True ), ( True, True ) ]
-
--- Count the number of permutations:
-
+```
+### Count the total number of permutations
+```elm
 tup.count
 
 --> 4
+```
+### Get the nth term in the sequence of permutations
+Note: the first term in the sequence is at n = 0, not n = 1
+```elm
+tup.nth 0
 
--- Get the nth term in the sequence of permutations:
--- (Note: the first term in the sequence is at n = 0, not n = 1)
-
-tup.nth 1
-
---> Just (True, False)
-
--- Get every xth permutation from the sequence, starting with the first term:
-
+--> Just ( False, False )
+```
+### Get every xth permutation from the sequence, starting with the 0th term
+```elm
 tup.every 2
 
 --> [ ( False, False ), ( False, True ) ]
+```
+### Take a sample of the sequence
+Provide a percentage between 0.0 and 1.0 to determine what proportion of the full sequence you want to include in your sample. 
 
--- Take a sample of terms from the sequence by providing a percentage between 0.0 and 1.0:
--- For example, if `x.count` is 100, `x.sample 0.5` will return a list of 50 evenly spaced terms, starting with the 0th term.
-
+For example, `x.sample 0.5` will return half of the terms in the sequence. If `x.count` is 100, you will get a list of 50 evenly spaced terms, starting with the 0th term.
+```elm
 tup.sample 0.75
 
 --> [ ( False, False ), ( True, False ), ( True, True ) ]
 ```
-
--- Create a generator for all lists of boolean values from the empty list up to lists of length 2:
-
+### Create generators for lists
+This will generate lists of boolean values from the empty list up to lists of length 2:
+```elm
 boolList =
     list 2 bool
 
 boolList.all ()
 
 --> [ [], [ False ], [ True ], [ False, False ], [ False, True ], [ True, False ], [ True, True ] ]
-
--- Create a generator for a record type:
-
+```
+### Create generators for records
+```elm
 type alias Rec =
     { bool : Bool
     , unit : () 
@@ -75,12 +78,12 @@ rec =
         |> field bool
         |> field unit
 
---rec.all ()
+rec.all ()
 
 --> [ { bool : False, unit : () }, { bool : True, unit : () } ]
-
--- Create a generator for a custom type:
-
+```
+### Create generators for custom types
+```elm
 type Foo
     = Bar
     | Baz Bool
@@ -90,6 +93,7 @@ foo =
         |> variant0 Bar
         |> variant1 Baz bool
 
--- foo.all ()
+foo.all ()
 
 --> [ Bar, Baz False, Baz True ]
+```
