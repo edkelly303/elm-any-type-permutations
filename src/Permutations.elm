@@ -20,6 +20,7 @@ module Permutations exposing
     , record
     , result
     , string
+    , test
     , triple
     , tuple
     , unit
@@ -33,6 +34,20 @@ module Permutations exposing
 
 import Array
 import Dict
+import Expect
+import Test
+
+
+test : Generator a -> String -> (a -> Expect.Expectation) -> Test.Test
+test gen description expectFromTerm =
+    List.indexedMap
+        (\idx term ->
+            Test.test
+                (description ++ ": term " ++ String.fromInt idx)
+                (\() -> expectFromTerm term)
+        )
+        (gen.all ())
+        |> Test.concat
 
 
 unit : Generator ()

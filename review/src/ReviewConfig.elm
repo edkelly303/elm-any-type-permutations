@@ -11,8 +11,9 @@ when inside the directory containing this file.
 
 -}
 
-import Review.Rule exposing (Rule)
 import Review.Documentation.CodeSnippet
+import Review.Rule exposing (Rule)
+
 
 config : List Rule
 config =
