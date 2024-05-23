@@ -36,6 +36,7 @@ import Array
 import Dict
 import Expect
 import Test
+import Test.Runner
 
 
 oldTest : Generator a -> String -> (a -> Expect.Expectation) -> Test.Test
@@ -49,26 +50,31 @@ oldTest gen description expectFromTerm =
         (gen.all ())
         |> Test.concat
 
+
 test : Generator a -> String -> (a -> Expect.Expectation) -> Test.Test
 test gen description toExpectation =
     let
-        helper n = 
-            if n > gen.count then 
-                Expect.pass
-            else
-                let 
-                    expectation = 
-                        toExpectation (gen.nth n)
-                in
-                case Test.Runner.getFailureReason expectation of
-                    Nothing -> 
-                        helper (n + 1)
-                    Just _ -> 
-                        expectation
+        helper n =
+            case gen.nth n of
+                Nothing ->
+                    Expect.pass
+
+                Just term ->
+                    let
+                        expectation =
+                            toExpectation term
+                    in
+                    case Test.Runner.getFailureReason expectation of
+                        Nothing ->
+                            helper (n + 1)
+
+                        Just _ ->
+                            expectation
     in
     Test.test
         description
         (\() -> helper 0)
+
 
 unit : Generator ()
 unit =
