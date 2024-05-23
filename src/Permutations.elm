@@ -22,7 +22,7 @@ module Permutations exposing
     , string
     , test
     , triple
-    , tuple
+    , pair
     , unit
     , variant0
     , variant1
@@ -120,11 +120,11 @@ result x a =
         |> variant1 Ok a
 
 
-tuple :
+pair :
     Generator value1
     -> Generator value2
     -> Generator ( value1, value2 )
-tuple fst snd =
+pair fst snd =
     record Tuple.pair
         |> field fst
         |> field snd
@@ -210,7 +210,7 @@ dict :
     -> Generator value
     -> Generator (Dict.Dict comparable value)
 dict maxLength k v =
-    list maxLength (tuple k v)
+    list maxLength (pair k v)
         |> map Dict.fromList
 
 
