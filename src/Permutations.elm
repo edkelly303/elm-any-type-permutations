@@ -17,12 +17,12 @@ module Permutations exposing
     , maybe
     , new
     , oneOf
+    , pair
     , record
     , result
     , string
     , test
     , triple
-    , pair
     , unit
     , variant0
     , variant1
