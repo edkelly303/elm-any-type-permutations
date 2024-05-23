@@ -39,18 +39,6 @@ import Test
 import Test.Runner
 
 
-oldTest : Generator a -> String -> (a -> Expect.Expectation) -> Test.Test
-oldTest gen description expectFromTerm =
-    List.indexedMap
-        (\idx term ->
-            Test.test
-                (description ++ ": term " ++ String.fromInt idx)
-                (\() -> expectFromTerm term)
-        )
-        (gen.all ())
-        |> Test.concat
-
-
 test : Generator a -> String -> (a -> Expect.Expectation) -> Test.Test
 test gen description toExpectation =
     let
