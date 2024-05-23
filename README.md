@@ -18,32 +18,34 @@ empty list `[]` up to `[ (), (), () ]`.
 ### Create a permutation generator
 For example, for a tuple of booleans `( Bool, Bool )`:
 ```elm
-tup =
-    tuple bool bool
+import Permutations exposing (pair, bool)
+
+twoBools =
+    pair bool bool
 ```
 ### Generate all permutations
 This will give you a list of all permutations, starting from the 0th term in the sequence
 ```elm
-tup.all ()
+twoBools.all ()
 
 --> [ ( False, False ), ( True, False ), ( False, True ), ( True, True ) ]
 ```
 ### Count the total number of permutations
 ```elm
-tup.count
+twoBools.count
 
 --> 4
 ```
 ### Get the nth term in the sequence of permutations
 Note: the first term in the sequence is at n = 0, not n = 1
 ```elm
-tup.nth 0
+twoBools.nth 0
 
 --> Just ( False, False )
 ```
 ### Get every xth permutation from the sequence, starting with the 0th term
 ```elm
-tup.every 2
+twoBools.every 2
 
 --> [ ( False, False ), ( False, True ) ]
 ```
@@ -52,13 +54,15 @@ Provide a percentage between 0.0 and 1.0 to determine what proportion of the ful
 
 For example, `x.sample 0.5` will return half of the terms in the sequence. If `x.count` is 100, you will get a list of 50 evenly spaced terms, starting with the 0th term.
 ```elm
-tup.sample 0.75
+twoBools.sample 0.75
 
 --> [ ( False, False ), ( True, False ), ( True, True ) ]
 ```
 ### Create generators for lists
 This will generate lists of boolean values from the empty list up to lists of length 2:
 ```elm
+import Permutations exposing (list, bool)
+
 boolList =
     list 2 bool
 
@@ -68,6 +72,8 @@ boolList.all ()
 ```
 ### Create generators for records
 ```elm
+import Permutations exposing (record, field, bool, unit)
+
 type alias Rec =
     { bool : Bool
     , unit : () 
@@ -84,6 +90,8 @@ rec.all ()
 ```
 ### Create generators for custom types
 ```elm
+import Permutations exposing (customType, variant0, variant1, bool)
+
 type Foo
     = Bar
     | Baz Bool
