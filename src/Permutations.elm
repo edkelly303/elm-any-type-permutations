@@ -38,8 +38,8 @@ import Expect
 import Test
 
 
-test : Generator a -> String -> (a -> Expect.Expectation) -> Test.Test
-test gen description expectFromTerm =
+oldTest : Generator a -> String -> (a -> Expect.Expectation) -> Test.Test
+oldTest gen description expectFromTerm =
     List.indexedMap
         (\idx term ->
             Test.test
@@ -49,6 +49,26 @@ test gen description expectFromTerm =
         (gen.all ())
         |> Test.concat
 
+test : Generator a -> String -> (a -> Expect.Expectation) -> Test.Test
+test gen description toExpectation =
+    let
+        helper n = 
+            if n > gen.count then 
+                Expect.pass
+            else
+                let 
+                    expectation = 
+                        toExpectation (gen.nth n)
+                in
+                case Test.Runner.getFailureReason expectation of
+                    Nothing -> 
+                        helper (n + 1)
+                    Just _ -> 
+                        expectation
+    in
+    Test.test
+        description
+        (\() -> helper 0)
 
 unit : Generator ()
 unit =
