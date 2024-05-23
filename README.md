@@ -70,8 +70,6 @@ boolList.all ()
 
 -- Create generators for records
 
-import Permutations exposing (record, field, bool, unit)
-
 type alias Rec =
     { bool : Bool
     , unit : () 
@@ -87,8 +85,6 @@ rec.all ()
 --> [ { bool : False, unit : () }, { bool : True, unit : () } ]
 
 -- Create generators for custom types
-
-import Permutations exposing (customType, variant0, variant1, bool)
 
 type Foo
     = Bar
