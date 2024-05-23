@@ -15,53 +15,51 @@ empty list `[]` up to `[ (), (), () ]`.
 
 ## Examples
 
-### Create a permutation generator
-For example, for a tuple of booleans `( Bool, Bool )`:
 ```elm
-import Permutations exposing (pair, bool)
+import Permutations exposing (pair, bool, list, unit, record, field, customType, variant0, variant1)
+
+# Create a permutation generator
+# For example, for a tuple of booleans `( Bool, Bool )`:
 
 twoBools =
     pair bool bool
-```
-### Generate all permutations
-This will give you a list of all permutations, starting from the 0th term in the sequence
-```elm
+
+# Generate all permutations
+# This will give you a list of all permutations, starting from the 0th term in the sequence
+
 twoBools.all ()
 
 --> [ ( False, False ), ( True, False ), ( False, True ), ( True, True ) ]
-```
-### Count the total number of permutations
-```elm
+
+# Count the total number of permutations
+
 twoBools.count
 
 --> 4
-```
-### Get the nth term in the sequence of permutations
-Note: the first term in the sequence is at n = 0, not n = 1
-```elm
+
+# Get the nth term in the sequence of permutations
+# Note: the first term in the sequence is at n = 0, not n = 1
+
 twoBools.nth 0
 
 --> Just ( False, False )
-```
-### Get every xth permutation from the sequence, starting with the 0th term
-```elm
+
+# Get every xth permutation from the sequence, starting with the 0th term
+
 twoBools.every 2
 
 --> [ ( False, False ), ( False, True ) ]
-```
-### Take a sample of the sequence
-Provide a percentage between 0.0 and 1.0 to determine what proportion of the full sequence you want to include in your sample. 
 
-For example, `x.sample 0.5` will return half of the terms in the sequence. If `x.count` is 100, you will get a list of 50 evenly spaced terms, starting with the 0th term.
-```elm
+# Take a sample of the sequence
+# Provide a percentage between 0.0 and 1.0 to determine what proportion of the full sequence you want to include in your sample. 
+# For example, `x.sample 0.5` will return half of the terms in the sequence. If `x.count` is 100, you will get a list of 50 evenly spaced terms, starting with the 0th term.
+
 twoBools.sample 0.75
 
 --> [ ( False, False ), ( True, False ), ( True, True ) ]
-```
-### Create generators for lists
-This will generate lists of boolean values from the empty list up to lists of length 2:
-```elm
-import Permutations exposing (list, bool)
+
+# Create generators for lists
+# This will generate lists of boolean values from the empty list up to lists of length 2:
 
 boolList =
     list 2 bool
@@ -69,9 +67,9 @@ boolList =
 boolList.all ()
 
 --> [ [], [ False ], [ True ], [ False, False ], [ False, True ], [ True, False ], [ True, True ] ]
-```
-### Create generators for records
-```elm
+
+# Create generators for records
+
 import Permutations exposing (record, field, bool, unit)
 
 type alias Rec =
@@ -87,9 +85,9 @@ rec =
 rec.all ()
 
 --> [ { bool : False, unit : () }, { bool : True, unit : () } ]
-```
-### Create generators for custom types
-```elm
+
+# Create generators for custom types
+
 import Permutations exposing (customType, variant0, variant1, bool)
 
 type Foo
