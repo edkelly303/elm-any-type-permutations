@@ -6,7 +6,7 @@ import Test exposing (..)
 
 
 list =
-    E.list 10 (E.oneOf [ 1, 2, 3, 4, 5, 6, 7, 8, 9 ])
+    E.list 10 (E.values [ 1, 2, 3, 4, 5, 6, 7, 8, 9 ])
 
 
 suite : Test

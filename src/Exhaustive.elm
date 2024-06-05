@@ -16,7 +16,6 @@ module Exhaustive exposing
     , map
     , maybe
     , new
-    , oneOf
     , pair
     , record
     , result
@@ -24,6 +23,7 @@ module Exhaustive exposing
     , test
     , triple
     , unit
+    , values
     , variant0
     , variant1
     , variant2
@@ -71,27 +71,27 @@ unit =
 
 bool : Generator Bool
 bool =
-    oneOf [ False, True ]
+    values [ False, True ]
 
 
 int : Generator Int
 int =
-    oneOf [ 0, -1, 1, 2, 3, -10, 10, -100, 100 ]
+    values [ 0, -1, 1, 2, 3, -10, 10, -100, 100 ]
 
 
 float : Generator Float
 float =
-    oneOf [ 0.0, -1.0, 1.0, 0.2, 0.3 ]
+    values [ 0.0, -1.0, 1.0, 0.2, 0.3 ]
 
 
 string : Generator String
 string =
-    oneOf [ "", " ", "\n", "\u{000D}", "\t", "\"", "a", "ab", "abc" ]
+    values [ "", " ", "\n", "\u{000D}", "\t", "\"", "a", "ab", "abc" ]
 
 
 char : Generator Char
 char =
-    oneOf [ ' ', 'a', 'A', '0', '\n', '\t', '\u{000D}' ]
+    values [ ' ', 'a', 'A', '0', '\n', '\t', '\u{000D}' ]
 
 
 maybe : Generator a -> Generator (Maybe a)
@@ -404,11 +404,11 @@ empty =
 
 constant : a -> Generator a
 constant value =
-    oneOf [ value ]
+    values [ value ]
 
 
-oneOf : List a -> Generator a
-oneOf list_ =
+values : List a -> Generator a
+values list_ =
     let
         array_ =
             Array.fromList list_
