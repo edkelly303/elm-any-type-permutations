@@ -16,7 +16,7 @@ empty list `[]` up to `[ (), (), () ]`.
 ## Examples
 
 ```elm
-import Permutations exposing (pair, bool, list, unit, record, field, customType, variant0, variant1)
+import Exhaustive exposing (pair, bool)
 
 -- Create a permutation generator
 -- For example, for a tuple of booleans `( Bool, Bool )`:
@@ -57,9 +57,13 @@ twoBools.every 2
 twoBools.sample 0.75
 
 --> [ ( False, False ), ( True, False ), ( True, True ) ]
+```
 
+```elm
 -- Create generators for lists
 -- This will generate lists of boolean values from the empty list up to lists of length 2:
+
+import Exhaustive exposing (list, bool)
 
 boolList =
     list 2 bool
@@ -67,8 +71,12 @@ boolList =
 boolList.all ()
 
 --> [ [], [ False ], [ True ], [ False, False ], [ False, True ], [ True, False ], [ True, True ] ]
+```
 
+```elm
 -- Create generators for records
+
+import Exhaustive exposing (record, field, bool, unit)
 
 type alias Rec =
     { bool : Bool
@@ -82,9 +90,13 @@ rec =
 
 rec.all ()
 
---> [ { bool : False, unit : () }, { bool : True, unit : () } ]
+--> [ { bool = False, unit = () }, { bool = True, unit = () } ]
+```
 
+```elm
 -- Create generators for custom types
+
+import Exhaustive exposing (customType, variant0, variant1, bool)
 
 type Foo
     = Bar
