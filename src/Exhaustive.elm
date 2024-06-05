@@ -1,4 +1,4 @@
-module Permutations exposing
+module Exhaustive exposing
     ( Definition
     , Generator
     , append
