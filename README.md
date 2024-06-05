@@ -1,16 +1,18 @@
-Generate permutations of values for any Elm type.
+# Elm Exhaustive Generators
+
+Create exhaustive generators for arbitrarily complex Elm types.
 
 For finite types such as `Bool` and `()`, we can exhaustively generate every possible value.
 
-For infinite types such as `Int`, `Float` and `String`, we generate permutations of a small set of "interesting" values.
+For infinite types such as `Int`, `Float` and `String`, by default we generate only a small set of potentially "interesting" values. 
 For example, `int` generates the values 0, -1, 1, 2, 3, -10, 10, -100, 100.
 
-For complex types such as tuples, records and custom types, the exhaustiveness depends on whether the contents
-are finite or infinite. For example, we can generate all possible permutations of `tuple bool bool`, but only a sample
-of interesting permutations for `tuple string int`.
+For complex types such as pairs, triples, records and custom types, the exhaustiveness depends on whether the contents
+are finite or infinite. For example, we can generate all possible values of `pair bool bool`, but only a sample
+of interesting values for `pair string int`.
 
 For collection types such as `List a` and `Dict k v`, we can specify the maximum length of the collection.
-For example, `list 3 unit` will generate every permutation of `List ()` from the 
+For example, `list 3 unit` will generate every possible value of `List ()` from the 
 empty list `[]` up to `[ (), (), () ]`.
 
 ## Examples
@@ -18,41 +20,38 @@ empty list `[]` up to `[ (), (), () ]`.
 ```elm
 import Exhaustive exposing (pair, bool)
 
--- Create a permutation generator
--- For example, for a tuple of booleans `( Bool, Bool )`:
+-- Create an exhaustive generator - for example, for a pair of booleans `( Bool, Bool )`
 
 twoBools =
     pair bool bool
 
--- Generate all permutations
--- This will give you a list of all permutations, starting from the 0th term in the sequence
-
-twoBools.all ()
-
---> [ ( False, False ), ( True, False ), ( False, True ), ( True, True ) ]
-
--- Count the total number of permutations
+-- Count the total number of values that the generator can produce
 
 twoBools.count
 
 --> 4
 
--- Get the nth term in the sequence of permutations
--- Note: the first term in the sequence is at n = 0, not n = 1
+-- Generate the first value (the 0th term of the sequence)
 
 twoBools.nth 0
 
 --> Just ( False, False )
 
--- Get every xth permutation from the sequence, starting with the 0th term
+-- Generate a list of all possible values, starting from the 0th term of the sequence
+
+twoBools.all ()
+
+--> [ ( False, False ), ( True, False ), ( False, True ), ( True, True ) ]
+
+-- Get every second value from the generator, starting with the 0th term of the sequence
 
 twoBools.every 2
 
 --> [ ( False, False ), ( False, True ) ]
 
--- Take a sample of the sequence
--- Provide a percentage between 0.0 and 1.0 to determine what proportion of the full sequence you want to include in your sample. 
--- For example, `x.sample 0.5` will return half of the terms in the sequence. If `x.count` is 100, you will get a list of 50 evenly spaced terms, starting with the 0th term.
+-- Take a sample of the values from the generator. Provide a percentage between 0.0 and 1.0
+-- to determine what proportion of the full sequence you want to include in your sample.
+-- The sample will always start with the 0th term of the sequence
 
 twoBools.sample 0.75
 
@@ -60,8 +59,7 @@ twoBools.sample 0.75
 ```
 
 ```elm
--- Create generators for lists
--- This will generate lists of boolean values from the empty list up to lists of length 2:
+-- Create a generator for lists of boolean values, from the empty list up to lists of length 2
 
 import Exhaustive exposing (list, bool)
 
@@ -74,7 +72,7 @@ boolList.all ()
 ```
 
 ```elm
--- Create generators for records
+-- Create a generator for a record type
 
 import Exhaustive exposing (record, field, bool, unit)
 
@@ -94,7 +92,7 @@ rec.all ()
 ```
 
 ```elm
--- Create generators for custom types
+-- Create a generator for a custom type
 
 import Exhaustive exposing (customType, variant0, variant1, bool)
 
