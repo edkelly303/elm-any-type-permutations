@@ -353,16 +353,16 @@ type alias Definition value =
 new : (Int -> Maybe value) -> Generator value
 new nth =
     let
-        count n total =
+        count n =
             case nth n of
-                Nothing ->
-                    total
-
                 Just _ ->
-                    count (n + 1) (total + 1)
+                    count (n + 1)
+
+                Nothing ->
+                    n
     in
     define
-        { count = count 0 0
+        { count = count 0
         , nth = nth
         }
 
