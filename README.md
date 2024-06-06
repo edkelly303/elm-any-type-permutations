@@ -18,7 +18,7 @@ empty list `[]` up to `[ (), (), () ]`.
 ## Examples
 
 ```elm
-import Exhaustive exposing (pair, bool)
+import Exhaustive exposing (pair, bool, list, record, field, unit, customType, variant0, variant1)
 
 -- Create an exhaustive generator - for example, for a pair of booleans `( Bool, Bool )`
 
@@ -56,12 +56,8 @@ twoBools.every 2
 twoBools.sample 0.75
 
 --> [ ( False, False ), ( True, False ), ( True, True ) ]
-```
 
-```elm
 -- Create a generator for lists of boolean values, from the empty list up to lists of length 2
-
-import Exhaustive exposing (list, bool)
 
 boolList =
     list 2 bool
@@ -69,12 +65,8 @@ boolList =
 boolList.all ()
 
 --> [ [], [ False ], [ True ], [ False, False ], [ False, True ], [ True, False ], [ True, True ] ]
-```
 
-```elm
 -- Create a generator for a record type
-
-import Exhaustive exposing (record, field, bool, unit)
 
 type alias Rec =
     { bool : Bool
@@ -89,12 +81,8 @@ rec =
 rec.all ()
 
 --> [ { bool = False, unit = () }, { bool = True, unit = () } ]
-```
 
-```elm
 -- Create a generator for a custom type
-
-import Exhaustive exposing (customType, variant0, variant1, bool)
 
 type Foo
     = Bar
