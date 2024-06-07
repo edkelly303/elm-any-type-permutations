@@ -39,6 +39,26 @@ import Test
 import Test.Runner
 
 
+{-| Turn a `Generator` into a `Test`, for use with `elm-test`.
+
+The API is similar to `elm-test`'s `Test.fuzz`, except that instead of supplying
+a fuzzer, you supply a `Generator` from this package.
+
+When the test is executed, `elm-test` will check the expectation against every
+term in the sequence, starting from the 0th term and continuing until either an
+expectation fails, or the generator is exhausted.
+
+    import Exhaustive exposing (test, int)
+    import Test
+    import Expect
+
+
+    test int "This integer is never zero" <|
+        \n -> n |> Expect.notEqual 0
+
+    --: Test.Test
+
+-}
 test : Generator a -> String -> (a -> Expect.Expectation) -> Test.Test
 test gen description toExpectation =
     let
@@ -64,6 +84,7 @@ test gen description toExpectation =
         (\() -> helper 0)
 
 
+{-| -}
 unit : Generator ()
 unit =
     constant ()
