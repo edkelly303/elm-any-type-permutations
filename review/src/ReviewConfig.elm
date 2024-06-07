@@ -12,7 +12,10 @@ when inside the directory containing this file.
 -}
 
 import Review.Documentation.CodeSnippet
-import Docs
+import Docs.NoMissing exposing (exposedModules, onlyExposed)
+import Docs.ReviewAtDocs
+import Docs.ReviewLinksAndSections
+import Docs.UpToDateReadmeLinks
 import Review.Rule exposing (Rule)
 
 
