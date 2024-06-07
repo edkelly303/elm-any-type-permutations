@@ -1,6 +1,6 @@
 module Exhaustive exposing
-    ( Definition
-    , Generator
+    ( Generator
+    , andThen
     , append
     , array
     , bool
@@ -164,7 +164,7 @@ list maxLength item =
         count =
             countHelper 0 maxLength
     in
-    new
+    define
         { count = count
         , nth =
             \m ->
@@ -225,7 +225,7 @@ dict maxLength k v =
 
 record : constructor -> Generator constructor
 record constructor =
-    new
+    define
         { count = 1
         , nth = \_ -> Just constructor
         }
@@ -236,7 +236,7 @@ field :
     -> Generator (value1 -> value2)
     -> Generator value2
 field gen builder =
-    new
+    define
         { count = gen.count * builder.count
         , nth =
             \n ->
@@ -371,8 +371,25 @@ type alias Definition value =
     }
 
 
-new : Definition value -> Generator value
-new definition =
+new : (Int -> Maybe value) -> Generator value
+new nth =
+    let
+        count n =
+            case nth n of
+                Just _ ->
+                    count (n + 1)
+
+                Nothing ->
+                    n
+    in
+    define
+        { count = count 0
+        , nth = nth
+        }
+
+
+define : Definition value -> Generator value
+define definition =
     let
         all () =
             List.range 0 definition.count
@@ -417,7 +434,7 @@ new definition =
 
 empty : Generator a
 empty =
-    new
+    define
         { count = 0
         , nth = \_ -> Nothing
         }
@@ -434,7 +451,7 @@ values list_ =
         array_ =
             Array.fromList list_
     in
-    new
+    define
         { count = List.length list_
         , nth = \n -> Array.get n array_
         }
@@ -445,10 +462,27 @@ map :
     -> Generator value1
     -> Generator value2
 map f gen =
+    new (\n -> Maybe.map f (gen.nth n))
+
+
+andThen : (a -> Generator b) -> Generator a -> Generator b
+andThen valueAToGenB genA =
     new
-        { count = gen.count
-        , nth = \n -> Maybe.map f (gen.nth n)
-        }
+        (\nB ->
+            let
+                genB =
+                    makeGenB (genA.count - 1) empty
+
+                makeGenB nA genBAccumulator =
+                    case genA.nth nA of
+                        Just valueA ->
+                            makeGenB (nA - 1) (append (valueAToGenB valueA) genBAccumulator)
+
+                        Nothing ->
+                            genBAccumulator
+            in
+            genB.nth nB
+        )
 
 
 append :
@@ -456,7 +490,7 @@ append :
     -> Generator value
     -> Generator value
 append left right =
-    new
+    define
         { count = left.count + right.count
         , nth =
             \n ->
