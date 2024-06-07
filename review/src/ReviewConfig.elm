@@ -12,9 +12,17 @@ when inside the directory containing this file.
 -}
 
 import Review.Documentation.CodeSnippet
+import Docs
 import Review.Rule exposing (Rule)
 
 
 config : List Rule
 config =
-    [ Review.Documentation.CodeSnippet.check ]
+    [ Docs.NoMissing.rule
+        { document = onlyExposed
+        , from = exposedModules
+        }
+    , Docs.ReviewLinksAndSections.rule
+    , Docs.ReviewAtDocs.rule
+    , Docs.UpToDateReadmeLinks.rule
+    , Review.Documentation.CodeSnippet.check ]
