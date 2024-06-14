@@ -367,7 +367,20 @@ dict maxLength k v =
     list maxLength (pair k v)
         |> map Dict.fromList
 
+{-| Generate all values of a record type. Use with `field`.
 
+    import Exhaustive exposing (record, field, bool, unit)
+
+    rec = 
+        record (\foo bar -> { foo = foo, bar = bar })
+            |> field .foo bool
+            |> field .bar unit
+
+    rec.all ()
+
+    --> [ { foo = False, bar = () }, { foo = True, bar = () } ]
+
+-}
 record : constructor -> Generator constructor
 record constructor =
     define
@@ -376,6 +389,20 @@ record constructor =
         }
 
 
+{-| Specify the contents of a field for a record type. Use with `record`.
+
+    import Exhaustive exposing (record, field, bool, unit)
+
+    rec = 
+        record (\foo bar -> { foo = foo, bar = bar })
+            |> field .foo bool
+            |> field .bar unit
+
+    rec.all ()
+
+    --> [ { foo = False, bar = () }, { foo = True, bar = () } ]
+
+-}
 field :
     Generator value1
     -> Generator (value1 -> value2)
@@ -400,7 +427,13 @@ field gen builder =
                         Nothing
         }
 
+{-| Generate all values of a custom type . Use with `variant0`, `variant1`, etc. 
 
+    let Cus = 
+
+    cus = customType
+
+-}
 customType : Generator a
 customType =
     empty
