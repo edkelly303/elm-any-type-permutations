@@ -97,11 +97,12 @@ bool : Generator Bool
 bool =
     values [ False, True ]
 
-{-| Generate integer values. 
 
-Since the set of all integers is infinite, we don't 
-attempt to generate all of them. Instead, we try a small set of potentially 
-interesting integers, which may be useful in tests: 
+{-| Generate integer values.
+
+Since the set of all integers is infinite, we don't
+attempt to generate all of them. Instead, we try a small set of potentially
+interesting integers, which may be useful in tests:
 
     import Exhaustive exposing (int)
 
@@ -111,18 +112,20 @@ interesting integers, which may be useful in tests:
 
 (I am open to suggestions for more interesting integers than these!)
 
-If you want to generate a specific list of integers, see the docs for `values` 
+If you want to generate a specific list of integers, see the docs for `values`
 instead.
+
 -}
 int : Generator Int
 int =
     values [ 0, -1, 1, 2, 3, -10, 10, -100, 100 ]
 
+
 {-| Generate `Float` values.
 
-Since the set of all floats is infinite, we don't 
-attempt to generate all of them. Instead, we try a small set of potentially 
-interesting floats, which may be useful in tests: 
+Since the set of all floats is infinite, we don't
+attempt to generate all of them. Instead, we try a small set of potentially
+interesting floats, which may be useful in tests:
 
     import Exhaustive exposing (float)
 
@@ -132,39 +135,43 @@ interesting floats, which may be useful in tests:
 
 (I am open to suggestions for more interesting floats than these!)
 
-If you want to generate a specific list of floats, see the docs for `values` 
+If you want to generate a specific list of floats, see the docs for `values`
 instead.
+
 -}
 float : Generator Float
 float =
-    values [ 0.0, -1.0, 1.0, 0.2, 0.3, 0/0, 1/0 ]
+    values [ 0.0, -1.0, 1.0, 0.2, 0.3, 0 / 0, 1 / 0 ]
+
 
 {-| Generate `String` values.
 
-Since the set of all `String`s is infinite, we don't 
-attempt to generate all of them. Instead, we try a small set of potentially 
-interesting `String`s, which may be useful in tests: 
+Since the set of all `String`s is infinite, we don't
+attempt to generate all of them. Instead, we try a small set of potentially
+interesting `String`s, which may be useful in tests:
 
     import Exhaustive exposing (string)
 
     string.all ()
 
-    --> [ "", " ", "\n", "\u{000D}", "\t", "\"", "a", "ab", "abc" ]
+    --> [ "", " ", "\n", "\r", "\t", "\"", "a", "ab", "abc" ]
 
 (I am open to suggestions for more interesting `String`s than these!)
 
-If you want to generate a specific list of `String`s, see the docs for `values` 
+If you want to generate a specific list of `String`s, see the docs for `values`
 instead.
+
 -}
 string : Generator String
 string =
     values [ "", " ", "\n", "\u{000D}", "\t", "\"", "a", "ab", "abc" ]
 
+
 {-| Generate `Char` values.
 
-Since the set of all `Char`s is infinite, we don't 
-attempt to generate all of them. Instead, we try a small set of potentially 
-interesting `Char`s, which may be useful in tests: 
+Since the set of all `Char`s is infinite, we don't
+attempt to generate all of them. Instead, we try a small set of potentially
+interesting `Char`s, which may be useful in tests:
 
     import Exhaustive exposing (char)
 
@@ -174,23 +181,26 @@ interesting `Char`s, which may be useful in tests:
 
 (I am open to suggestions for more interesting `Char`s than these!)
 
-If you want to generate a specific list of `Char`s, see the docs for `values` 
+If you want to generate a specific list of `Char`s, see the docs for `values`
 instead.
+
 -}
 char : Generator Char
 char =
     values [ ' ', 'a', 'A', '0', '\n', '\t', '\u{000D}' ]
 
+
 {-| Generate all `Maybe` values of a given type.
 
     import Exhaustive exposing (maybe, bool)
 
-    maybeBool = 
+    maybeBool =
         maybe bool
 
     maybeBool.all ()
 
     --> [ Nothing, Just False, Just True ]
+
 -}
 maybe : Generator a -> Generator (Maybe a)
 maybe a =
@@ -198,16 +208,18 @@ maybe a =
         |> variant0 Nothing
         |> variant1 Just a
 
+
 {-| Generate all `Result` values of given error and ok types.
 
     import Exhaustive exposing (result, unit, bool)
 
-    resultUnitBool = 
+    resultUnitBool =
         result unit bool
 
     resultUnitBool.all ()
 
     --> [ Err (), Ok False, Ok True ]
+
 -}
 result : Generator error -> Generator value -> Generator (Result error value)
 result x a =
@@ -215,16 +227,18 @@ result x a =
         |> variant1 Err x
         |> variant1 Ok a
 
+
 {-| Generate all pairs of values of given types.
 
     import Exhaustive exposing (pair, bool)
 
-    pairBool = 
+    pairBool =
         pair bool bool
 
     pairBool.all ()
 
     --> [ ( False, False ), ( True, False ), ( False, True ), ( True, True ) ]
+
 -}
 pair :
     Generator value1
@@ -235,16 +249,18 @@ pair fst snd =
         |> field fst
         |> field snd
 
+
 {-| Generate all triples of values of given types.
 
     import Exhaustive exposing (triple, bool, unit)
 
-    tripleBoolUnitUnit = 
+    tripleBoolUnitUnit =
         triple bool unit unit
 
     tripleBoolUnitUnit.all ()
 
     --> [ ( False, (), () ), ( True, (), () ) ]
+
 -}
 triple :
     Generator value1
@@ -257,17 +273,19 @@ triple fst snd thd =
         |> field snd
         |> field thd
 
-{-| Generate all lists of values of a given type, starting with the empty list 
+
+{-| Generate all lists of values of a given type, starting with the empty list
 `[]`, and continuing up to lists of a specified length.
 
     import Exhaustive exposing (list, bool)
 
-    listBool = 
+    listBool =
         list 1 bool
 
     listBool.all ()
 
     --> [ [], [ False ], [ True ] ]
+
 -}
 list : Int -> Generator a -> Generator (List a)
 list maxLength item =
@@ -324,13 +342,14 @@ list maxLength item =
                         rotations
         }
 
-{-| Generate all `Array`s of a given type, starting with an empty `Array` and 
+
+{-| Generate all `Array`s of a given type, starting with an empty `Array` and
 continuing up to `Array`s of a specified length.
 
     import Exhaustive exposing (array, bool)
     import Array
 
-    arrayBool = 
+    arrayBool =
         array 1 bool
 
     arrayBool.all ()
@@ -343,20 +362,22 @@ array maxLength a =
     list maxLength a
         |> map Array.fromList
 
-{-| Generate all `Dict`s of a given key and value type, starting with an empty 
+
+{-| Generate all `Dict`s of a given key and value type, starting with an empty
 `Dict` and continuing up to `Dict`s of a specified length.
 
     import Exhaustive exposing (dict, values, unit)
     import Dict
 
-    myDict = 
-        dict 1 
+    myDict =
+        dict 1
             (values [ "a", "b" ])
             unit
 
     myDict.all ()
 
     --> [ Dict.fromList [], Dict.fromList [ ( "a", () ) ], Dict.fromList [ ( "b", () ) ] ]
+
 -}
 dict :
     Int
@@ -367,11 +388,12 @@ dict maxLength k v =
     list maxLength (pair k v)
         |> map Dict.fromList
 
+
 {-| Generate all values of a record type. Use with `field`.
 
     import Exhaustive exposing (record, field, bool, unit)
 
-    rec = 
+    rec =
         record (\foo bar -> { foo = foo, bar = bar })
             |> field .foo bool
             |> field .bar unit
@@ -393,7 +415,12 @@ record constructor =
 
     import Exhaustive exposing (record, field, bool, unit)
 
-    rec = 
+    type alias Rec =
+        { foo : Bool
+        , bar : ()
+        }
+
+    rec =
         record (\foo bar -> { foo = foo, bar = bar })
             |> field .foo bool
             |> field .bar unit
@@ -427,11 +454,25 @@ field gen builder =
                         Nothing
         }
 
-{-| Generate all values of a custom type . Use with `variant0`, `variant1`, etc. 
 
-    let Cus = 
+{-| Generate all values of a custom type . Use with `variant0`, `variant1`, etc.
 
-    cus = customType
+    import Exhaustive exposing (customType, variant0, variant1, variant2, bool, unit)
+
+    type Foo
+        = Foo Bool
+        | Bar () Bool
+        | Baz
+
+    foo =
+        customType
+            |> variant1 bool
+            |> variant2 unit bool
+            |> variant0
+
+    foo.all ()
+
+    --> [ Foo False, Foo True, Bar () False, Bar () True, Baz ]
 
 -}
 customType : Generator a
@@ -439,6 +480,8 @@ customType =
     empty
 
 
+{-| Specify a custom type variant with no arguments. Use with `customType`.
+-}
 variant0 :
     variant
     -> Generator variant
@@ -447,6 +490,8 @@ variant0 variant builder =
     append builder (constant variant)
 
 
+{-| Specify a custom type variant with one argument. Use with `customType`.
+-}
 variant1 :
     (arg -> variant)
     -> Generator arg
@@ -458,6 +503,8 @@ variant1 tag arg builder =
         |> append builder
 
 
+{-| Specify a custom type variant with two arguments. Use with `customType`.
+-}
 variant2 :
     (arg1 -> arg2 -> variant)
     -> Generator arg1
@@ -474,6 +521,8 @@ variant2 tag arg1 arg2 builder =
     append builder variantGen
 
 
+{-| Specify a custom type variant with three arguments. Use with `customType`.
+-}
 variant3 :
     (arg1 -> arg2 -> arg3 -> variant)
     -> Generator arg1
@@ -492,6 +541,8 @@ variant3 tag arg1 arg2 arg3 builder =
     append builder variantGen
 
 
+{-| Specify a custom type variant with four arguments. Use with `customType`.
+-}
 variant4 :
     (arg1 -> arg2 -> arg3 -> arg4 -> variant)
     -> Generator arg1
@@ -512,6 +563,8 @@ variant4 tag arg1 arg2 arg3 arg4 builder =
     append builder variantGen
 
 
+{-| Specify a custom type variant with five arguments. Use with `customType`.
+-}
 variant5 :
     (arg1 -> arg2 -> arg3 -> arg4 -> arg5 -> variant)
     -> Generator arg1
@@ -534,6 +587,56 @@ variant5 tag arg1 arg2 arg3 arg4 arg5 builder =
     append builder variantGen
 
 
+{-| A `Generator` provides a set of functions that are useful when generating
+values of a given type.
+
+The functions are:
+
+`count : Int`: the total number of values that will be produced by the generator
+
+    bool.count
+
+    --> 2
+
+`nth : Int -> Maybe value`: generate the nth value in the
+sequence. Sequences begin at n = 0. This function returns `Nothing` if you pass
+an integer that is greater than `count`.
+
+    bool.nth 0
+
+    --> Just False
+
+`all : () -> List value`: generate a list of all the values that the generator
+can produce, starting with n = 0 and ending with n = count. To avoid creating
+huge lists unnecessarily, you need to pass a `()` to this function to generate
+the list.
+
+    bool.all ()
+
+    --> [ False, True ]
+
+`every : Int -> List value`: generate a list of a subset of values, starting
+with the value at n = 0 and then taking values at a specified interval.
+
+    zeroToNine =
+        values (List.range 0 9)
+
+    zeroToNine.every 2
+
+    --> [ 0, 2, 4, 6, 8 ]
+
+`sample : Float -> List value`: generate a list of an evenly distributed
+percentage of the values that the generator can produce, starting with the value
+at n = 0. The percentage should be specified as a `Float` between 0.0 and 1.0.
+
+    zeroToNine =
+        values (List.range 0 9)
+
+    zeroToNine.sample 0.25
+
+    --> [ 0, 4, 8 ]
+
+-}
 type alias Generator value =
     { count : Int
     , nth : Int -> Maybe value
@@ -549,6 +652,32 @@ type alias Definition value =
     }
 
 
+{-| Define a new generator by providing an implementation for generating the nth
+term.
+
+    type Colour
+        = Red
+        | Green
+        | Blue
+
+    colour =
+        new
+            (\n ->
+                case n of
+                    0 -> Just Red
+                    1 -> Just Green
+                    2 -> Just Blue
+                    _ -> Nothing
+            )
+
+    colour.all ()
+
+    --> [ Red, Green, Blue ]
+
+(This is a silly example. If you really had a `Colour` type like this, it would
+be better to use the `customType` and `variant0` functions.)
+
+-}
 new : (Int -> Maybe value) -> Generator value
 new nth =
     let
@@ -610,6 +739,12 @@ define definition =
     }
 
 
+{-| A `Generator` that never produces any values.
+
+    empty.nth 0
+
+    --> Nothing
+-}
 empty : Generator a
 empty =
     define
@@ -617,12 +752,37 @@ empty =
         , nth = \_ -> Nothing
         }
 
+{-| A `Generator` that produces exactly one value.
 
+    one = 
+        constant 1
+
+    one.nth 0 
+
+    --> Just 1
+
+    one.nth 1
+
+    --> Nothing
+-}
 constant : a -> Generator a
 constant value =
     values [ value ]
 
+{-| A `Generator` that produces a specific sequence of values.
 
+    abc = 
+        values [ "a", "b", "c" ]
+
+    abc.nth 2
+
+    --> Just "c"
+
+    abc.nth 3
+
+    --> Nothing
+
+-}
 values : List a -> Generator a
 values list_ =
     let
@@ -634,7 +794,19 @@ values list_ =
         , nth = \n -> Array.get n array_
         }
 
+{-| Convert a `Generator` of one type of value into a `Generator` of another 
+type of value.
 
+    type Id 
+        = Id Int
+
+    id = 
+        map Id int
+    
+    id.nth 0
+
+    --> Just (Id 0)
+-}
 map :
     (value1 -> value2)
     -> Generator value1
@@ -642,7 +814,25 @@ map :
 map f gen =
     new (\n -> Maybe.map f (gen.nth n))
 
+{-| Create a `Generator` for values of one type based on the values produced by
+a generator of another type.
 
+    oneTwoThree = 
+        bool
+            |> andThen 
+                (\b -> 
+                    case b of 
+                        False -> 
+                            values [ 1, 2 ]
+                        
+                        True -> 
+                            constant 3
+                )
+    
+    oneTwoThree.all ()
+
+    --> [ 1, 2, 3 ]
+-}
 andThen : (a -> Generator b) -> Generator a -> Generator b
 andThen valueAToGenB genA =
     new
@@ -662,7 +852,17 @@ andThen valueAToGenB genA =
             genB.nth nB
         )
 
+{-| Combine two `Generator`s of the same type. This will first generate all the 
+values from the first generator, and then all the values from the second 
+generator.
 
+    oneTwoThreeFour = 
+        append (values [ 1, 2 ]) (values [ 3, 4 ])
+
+    oneTwoThreeFour.all ()
+
+    --> [ 1, 2, 3, 4 ]
+-}
 append :
     Generator value
     -> Generator value
