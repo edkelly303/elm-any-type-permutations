@@ -11,11 +11,11 @@ when inside the directory containing this file.
 
 -}
 
-import Review.Documentation.CodeSnippet
 import Docs.NoMissing exposing (exposedModules, onlyExposed)
 import Docs.ReviewAtDocs
 import Docs.ReviewLinksAndSections
 import Docs.UpToDateReadmeLinks
+import Review.Documentation.CodeSnippet
 import Review.Rule exposing (Rule)
 
 
@@ -28,4 +28,5 @@ config =
     , Docs.ReviewLinksAndSections.rule
     , Docs.ReviewAtDocs.rule
     , Docs.UpToDateReadmeLinks.rule
-    , Review.Documentation.CodeSnippet.check ]
+    , Review.Documentation.CodeSnippet.check
+    ]
