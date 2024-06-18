@@ -1,42 +1,143 @@
 module Exhaustive exposing
-    ( Generator
-    , andThen
-    , append
-    , array
-    , bool
-    , char
-    , constant
-    , customType
-    , dict
-    , empty
-    , field
-    , float
-    , int
-    , list
-    , map
-    , maybe
-    , new
-    , pair
-    , record
-    , result
-    , string
-    , test
-    , triple
-    , unit
-    , values
-    , variant0
-    , variant1
-    , variant2
-    , variant3
-    , variant4
-    , variant5
+    ( Generator, test
+    , unit, bool, int, float, char, string
+    , pair, triple, maybe, result, list, dict, array
+    , record, field
+    , customType, variant0, variant1, variant2, variant3, variant4, variant5
+    , empty, constant, values, new
+    , map, andThen, append
     )
+
+{-|
+
+
+# Generators and testing
+
+@docs Generator, test
+
+
+# Generators for primitive types
+
+@docs unit, bool, int, float, char, string
+
+
+# Generators for complex types
+
+
+## Built-in combinators
+
+@docs pair, triple, maybe, result, list, dict, array
+
+
+## Records
+
+@docs record, field
+
+
+## Custom types
+
+@docs customType, variant0, variant1, variant2, variant3, variant4, variant5
+
+
+# Defining custom generators
+
+@docs empty, constant, values, new
+
+
+# Transforming, chaining and combining generators
+
+@docs map, andThen, append
+
+-}
 
 import Array
 import Dict
 import Expect
 import Test
 import Test.Runner
+
+
+{-| A `Generator` provides a set of functions that are useful when generating
+values of a given type.
+
+The functions are:
+
+
+### `count : Int`
+
+The total number of values that will be produced by the generator
+
+    import Exhaustive exposing (bool)
+
+    bool.count
+
+    --> 2
+
+
+### `nth : Int -> Maybe value`
+
+Generate the nth value in the sequence. Sequences begin at n = 0. This function
+returns `Nothing` if you pass an integer that is greater than `count`.
+
+    import Exhaustive exposing (bool)
+
+    bool.nth 0
+
+    --> Just False
+
+
+### `all : () -> List value`
+
+Generate a list of all the values that the generator
+can produce, starting with n = 0 and ending with n = count. To avoid creating
+huge lists unnecessarily, you need to pass a `()` to this function to generate
+the list.
+
+    import Exhaustive exposing (bool)
+
+    bool.all ()
+
+    --> [ False, True ]
+
+
+### `every : Int -> List value`
+
+Generate a list of a subset of values, starting
+with the value at n = 0 and then taking values at a specified interval.
+
+    import Exhaustive exposing (values)
+
+    zeroToNine =
+        values (List.range 0 9)
+
+    zeroToNine.every 2
+
+    --> [ 0, 2, 4, 6, 8 ]
+
+
+### `sample : Float -> List value`
+
+Generate a list of an evenly distributed
+percentage of the values that the generator can produce, starting with the value
+at n = 0. The percentage should be specified as a `Float` between 0.0 and 1.0.
+
+    import Exhaustive exposing (values)
+
+    zeroToNine =
+        values (List.range 0 9)
+
+    zeroToNine.sample 0.25
+
+    --> [ 0, 4, 8 ]
+
+-}
+type alias Generator value =
+    { count : Int
+    , nth : Int -> Maybe value
+    , all : () -> List value
+    , every : Int -> List value
+    , sample : Float -> List value
+    }
 
 
 {-| Turn a `Generator` into a `Test`, for use with `elm-test`.
@@ -59,7 +160,7 @@ expectation fails, or the generator is exhausted.
     --: Test.Test
 
 -}
-test : Generator a -> String -> (a -> Expect.Expectation) -> Test.Test
+test : Generator value -> String -> (value -> Expect.Expectation) -> Test.Test
 test gen description toExpectation =
     let
         helper n =
@@ -85,6 +186,17 @@ test gen description toExpectation =
 
 
 {-| Generate all values of the unit type, `()`. There's only one!
+
+    import Exhaustive exposing (unit)
+
+    unit.nth 0
+
+    --> Just ()
+
+    unit.nth 1
+
+    --> Nothing
+
 -}
 unit : Generator ()
 unit =
@@ -92,6 +204,13 @@ unit =
 
 
 {-| Generate all boolean values. The 0th term is `False`, the 1st term is `True`.
+
+    import Exhaustive exposing (bool)
+
+    bool.all ()
+
+    --> [ False, True ]
+
 -}
 bool : Generator Bool
 bool =
@@ -202,7 +321,7 @@ char =
     --> [ Nothing, Just False, Just True ]
 
 -}
-maybe : Generator a -> Generator (Maybe a)
+maybe : Generator value -> Generator (Maybe value)
 maybe a =
     customType
         |> variant0 Nothing
@@ -287,7 +406,7 @@ triple fst snd thd =
     --> [ [], [ False ], [ True ] ]
 
 -}
-list : Int -> Generator a -> Generator (List a)
+list : Int -> Generator value -> Generator (List value)
 list maxLength item =
     let
         countHelper acc n =
@@ -357,7 +476,7 @@ continuing up to `Array`s of a specified length.
     --> [ Array.fromList [], Array.fromList [ False ], Array.fromList [ True ] ]
 
 -}
-array : Int -> Generator a -> Generator (Array.Array a)
+array : Int -> Generator value -> Generator (Array.Array value)
 array maxLength a =
     list maxLength a
         |> map Array.fromList
@@ -403,7 +522,7 @@ dict maxLength k v =
     --> [ { foo = False, bar = () }, { foo = True, bar = () } ]
 
 -}
-record : constructor -> Generator constructor
+record : value -> Generator value
 record constructor =
     define
         { count = 1
@@ -412,28 +531,11 @@ record constructor =
 
 
 {-| Specify the contents of a field for a record type. Use with `record`.
-
-    import Exhaustive exposing (record, field, bool, unit)
-
-    type alias Rec =
-        { foo : Bool
-        , bar : ()
-        }
-
-    rec =
-        record (\foo bar -> { foo = foo, bar = bar })
-            |> field .foo bool
-            |> field .bar unit
-
-    rec.all ()
-
-    --> [ { foo = False, bar = () }, { foo = True, bar = () } ]
-
 -}
 field :
-    Generator value1
-    -> Generator (value1 -> value2)
-    -> Generator value2
+    Generator field
+    -> Generator (field -> record)
+    -> Generator record
 field gen builder =
     define
         { count = gen.count * builder.count
@@ -475,7 +577,7 @@ field gen builder =
     --> [ Foo False, Foo True, Bar () False, Bar () True, Baz ]
 
 -}
-customType : Generator a
+customType : Generator value
 customType =
     empty
 
@@ -587,65 +689,6 @@ variant5 tag arg1 arg2 arg3 arg4 arg5 builder =
     append builder variantGen
 
 
-{-| A `Generator` provides a set of functions that are useful when generating
-values of a given type.
-
-The functions are:
-
-`count : Int`: the total number of values that will be produced by the generator
-
-    bool.count
-
-    --> 2
-
-`nth : Int -> Maybe value`: generate the nth value in the
-sequence. Sequences begin at n = 0. This function returns `Nothing` if you pass
-an integer that is greater than `count`.
-
-    bool.nth 0
-
-    --> Just False
-
-`all : () -> List value`: generate a list of all the values that the generator
-can produce, starting with n = 0 and ending with n = count. To avoid creating
-huge lists unnecessarily, you need to pass a `()` to this function to generate
-the list.
-
-    bool.all ()
-
-    --> [ False, True ]
-
-`every : Int -> List value`: generate a list of a subset of values, starting
-with the value at n = 0 and then taking values at a specified interval.
-
-    zeroToNine =
-        values (List.range 0 9)
-
-    zeroToNine.every 2
-
-    --> [ 0, 2, 4, 6, 8 ]
-
-`sample : Float -> List value`: generate a list of an evenly distributed
-percentage of the values that the generator can produce, starting with the value
-at n = 0. The percentage should be specified as a `Float` between 0.0 and 1.0.
-
-    zeroToNine =
-        values (List.range 0 9)
-
-    zeroToNine.sample 0.25
-
-    --> [ 0, 4, 8 ]
-
--}
-type alias Generator value =
-    { count : Int
-    , nth : Int -> Maybe value
-    , all : () -> List value
-    , every : Int -> List value
-    , sample : Float -> List value
-    }
-
-
 type alias Definition value =
     { count : Int
     , nth : Int -> Maybe value
@@ -654,6 +697,8 @@ type alias Definition value =
 
 {-| Define a new generator by providing an implementation for generating the nth
 term.
+
+    import Exhaustive exposing (new)
 
     type Colour
         = Red
@@ -741,37 +786,47 @@ define definition =
 
 {-| A `Generator` that never produces any values.
 
+    import Exhaustive exposing (empty)
+
     empty.nth 0
 
     --> Nothing
+
 -}
-empty : Generator a
+empty : Generator value
 empty =
     define
         { count = 0
         , nth = \_ -> Nothing
         }
 
+
 {-| A `Generator` that produces exactly one value.
 
-    one = 
+    import Exhaustive exposing (constant)
+
+    one =
         constant 1
 
-    one.nth 0 
+    one.nth 0
 
     --> Just 1
 
     one.nth 1
 
     --> Nothing
+
 -}
-constant : a -> Generator a
+constant : value -> Generator value
 constant value =
     values [ value ]
 
+
 {-| A `Generator` that produces a specific sequence of values.
 
-    abc = 
+    import Exhaustive exposing (values)
+
+    abc =
         values [ "a", "b", "c" ]
 
     abc.nth 2
@@ -783,7 +838,7 @@ constant value =
     --> Nothing
 
 -}
-values : List a -> Generator a
+values : List value -> Generator value
 values list_ =
     let
         array_ =
@@ -794,18 +849,22 @@ values list_ =
         , nth = \n -> Array.get n array_
         }
 
-{-| Convert a `Generator` of one type of value into a `Generator` of another 
+
+{-| Convert a `Generator` of one type of value into a `Generator` of another
 type of value.
 
-    type Id 
+    import Exhaustive exposing (map, int)
+
+    type Id
         = Id Int
 
-    id = 
+    id =
         map Id int
-    
+
     id.nth 0
 
     --> Just (Id 0)
+
 -}
 map :
     (value1 -> value2)
@@ -814,26 +873,30 @@ map :
 map f gen =
     new (\n -> Maybe.map f (gen.nth n))
 
+
 {-| Create a `Generator` for values of one type based on the values produced by
 a generator of another type.
 
-    oneTwoThree = 
+    import Exhaustive exposing (andThen, bool, constant, values)
+
+    oneTwoThree =
         bool
-            |> andThen 
-                (\b -> 
-                    case b of 
-                        False -> 
+            |> andThen
+                (\b ->
+                    case b of
+                        False ->
                             values [ 1, 2 ]
-                        
-                        True -> 
+
+                        True ->
                             constant 3
                 )
-    
+
     oneTwoThree.all ()
 
     --> [ 1, 2, 3 ]
+
 -}
-andThen : (a -> Generator b) -> Generator a -> Generator b
+andThen : (value1 -> Generator value2) -> Generator value1 -> Generator value2
 andThen valueAToGenB genA =
     new
         (\nB ->
@@ -852,16 +915,20 @@ andThen valueAToGenB genA =
             genB.nth nB
         )
 
-{-| Combine two `Generator`s of the same type. This will first generate all the 
-values from the first generator, and then all the values from the second 
+
+{-| Combine two `Generator`s of the same type. This will first generate all the
+values from the first generator, and then all the values from the second
 generator.
 
-    oneTwoThreeFour = 
+    import Exhaustive exposing (append, values)
+
+    oneTwoThreeFour =
         append (values [ 1, 2 ]) (values [ 3, 4 ])
 
     oneTwoThreeFour.all ()
 
     --> [ 1, 2, 3, 4 ]
+
 -}
 append :
     Generator value
