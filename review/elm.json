@@ -7,7 +7,7 @@
     "dependencies": {
         "direct": {
             "elm/core": "1.0.5",
-            "jfmengels/elm-review": "2.13.2",
+            "jfmengels/elm-review": "2.14.0",
             "jfmengels/elm-review-documentation": "2.0.4",
             "lue-bird/elm-review-documentation-code-snippet": "1.1.2",
             "stil4m/elm-syntax": "7.3.2"
