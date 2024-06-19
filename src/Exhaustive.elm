@@ -248,9 +248,9 @@ interesting floats, which may be useful in tests:
 
     import Exhaustive exposing (float)
 
-    float.all ()
+    float.nth 0
 
-    --> [ 0.0, -1.0, 1.0, 0.2, 0.3, 0/0, 1/0 ]
+    --> Just 0.0
 
 (I am open to suggestions for more interesting floats than these!)
 
@@ -271,9 +271,9 @@ interesting `String`s, which may be useful in tests:
 
     import Exhaustive exposing (string)
 
-    string.all ()
+    string.nth 0
 
-    --> [ "", " ", "\n", "\r", "\t", "\"", "a", "ab", "abc" ]
+    --> Just ""
 
 (I am open to suggestions for more interesting `String`s than these!)
 
@@ -294,9 +294,9 @@ interesting `Char`s, which may be useful in tests:
 
     import Exhaustive exposing (char)
 
-    char.all ()
+    char.nth 0
 
-    --> [ ' ', 'a', 'A', '0', '\n', '\t', '\u{000D}' ]
+    --> Just ' '
 
 (I am open to suggestions for more interesting `Char`s than these!)
 
@@ -514,8 +514,8 @@ dict maxLength k v =
 
     rec =
         record (\foo bar -> { foo = foo, bar = bar })
-            |> field .foo bool
-            |> field .bar unit
+            |> field bool
+            |> field unit
 
     rec.all ()
 
@@ -568,9 +568,9 @@ field gen builder =
 
     foo =
         customType
-            |> variant1 bool
-            |> variant2 unit bool
-            |> variant0
+            |> variant1 Foo bool
+            |> variant2 Bar unit bool
+            |> variant0 Baz
 
     foo.all ()
 
